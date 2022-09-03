@@ -30,15 +30,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['ABE', 'BME', 'CHE', 'CPE', 'CVE', 'ELE', 'FBE', 'MEE', 'MME', 'WRE']
     },
-    role: {
-        type: String,
-        required: true,
-        enum: ['voter', 'admin']
-    },
 
     level: {
         type: String,
-        // required: true,
+        required: true,
         enum: ['100', '200', '300', '400', '500']
     },
 
@@ -50,8 +45,7 @@ const UserSchema = new mongoose.Schema({
     },
     confirmationCode: {
         type: String,
-        unique: true,
-        sparse: true
+        unique: true
     },
     verified: {
         type: Boolean,
@@ -60,9 +54,14 @@ const UserSchema = new mongoose.Schema({
     otp: {
         type: String,
         required: false
+    },
+    voted: {
+        type: Boolean,
+        default: false
     }
-
-})
+},
+    { timestamps: true }
+)
 
 
 

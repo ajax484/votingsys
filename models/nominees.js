@@ -1,13 +1,25 @@
 const mongoose = require('mongoose')
-const CandidateSchema = new mongoose.Schema({
-    name: {
+
+const NomineeSchema = new mongoose.Schema({
+    firstName: {
         type: String,
         required: true
     },
-    nickname: {
+    lastName: {
+        type: String,
+        required: true
+    },
+    otherNames: {
+        type: String,
+    },
+    matricNumber: {
         type: String,
         required: true,
         unique: true
+    },
+    department: {
+        type: String,
+        required: true
     },
     post: {
         type: String,
@@ -18,14 +30,18 @@ const CandidateSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String
     },
-    department: {
-        type: String,
+    cgpa: {
+        type: Number,
         required: true
-    }
+    },
+    level: {
+        type: String,
+        required: true,
+        enum: ['100', '200', '300', '400',]
+    },
 },
     { timestamps: true }
 )
 
-const Candidates = new mongoose.model('Candidates', CandidateSchema)
-
-module.exports = Candidates
+const Nominees = new mongoose.model('Nominees', NomineeSchema)
+module.exports = Nominees

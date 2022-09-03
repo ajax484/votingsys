@@ -5,8 +5,8 @@ router.delete('/candidate/:id', deleteCandidate)
 router.patch('/candidate/:id', updateCandidate)
 router.get('/candidates', getCandidates)
 router.get('/candidate/id', getCandidate)
-// router.get('/candidate/votes', getCandidateVotes)
+router.get('/candidate-votes', getCandidateVotes)
 router.post('/candidate', addCandidate)
-// router.get('/candidate/voters', getCandidateVoters)
+router.get('/candidate-voters', getCandidateVoters)
 
 module.exports = router

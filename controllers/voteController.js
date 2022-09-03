@@ -1,18 +1,25 @@
+/* Importing the required modules. */
 const User = require('../models/user')
+const Vote = require('../models/votes')
+const Post = require('../models/posts')
+const Candidate = require('../models/candidates')
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
+/**
+ * It sends an OTP to the user's email and verifies it.
+ * @param req - request
+ * @param res - The response object.
+ * @returns the value of the function.
+ */
 const requestOtp = async (req, res) => {
-    console.log(req.headers);
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const matric = decoded.matric
-    console.log(matric);
-    const email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
-
+    const email = User.matric.replace('/', '-') + '@students.unilorin.edu.ng'
     try {
-        const user = await User.findOne({ matric })
+        const user = await user.findOne({ matric })
         if (!user) {
             return res.status(400).send({ message: 'Invalid credentials' })
         }
@@ -46,22 +53,26 @@ const requestOtp = async (req, res) => {
     }
 }
 
+/**
+ * It verifies the OTP sent to the user's email address.
+ * </code>
+ * @param req - request object
+ * @param res - response object
+ * @returns The user object
+ */
 const verifyOtp = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const matric = decoded.matric
-    const { OTP } = req.body
-
-    console.log(OTP);
-
+    const otp = req.body
     try {
         const user = await User.findOne({ matric })
         if (!user) {
             return res.status(400).send({ message: 'Invalid credentials' })
         }
-        if (user.otp === OTP) {
+        if (user.otp === otp) {
             user.verified = true
-            await user.save()
+            await User.save()
             res.status(200).send({ message: 'OTP verified' })
         } else {
             res.status(400).send({ message: 'Invalid OTP' })
@@ -71,6 +82,12 @@ const verifyOtp = async (req, res) => {
     }
 }
 
+/**
+ * It's an async function that uses the mongoose model to find all the candidates in the database and
+ * then sends them back to the client.
+ * @param req - The request object.
+ * @param res - The response object.
+ */
 const getCandidates = async (req, res) => {
     try {
         const candidates = await Candidate.find({})
@@ -80,26 +97,31 @@ const getCandidates = async (req, res) => {
     }
 }
 
+/**
+ * It creates a vote and updates the user's voted status to true.
+ * </code>
+ * @param req - request
+ * @param res - response object
+ */
 const vote = async (req, res) => {
-
+    let token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const voted = decoded.voted
+    const verified = decoded.verified
     try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const matric = decoded.matric
-        const verified = decoded.verified
-        if (verified) {
-            const candidate = await candidate.findOne({ nickname: candidate.nickname })
-            candidate.votedBy.push(matric)
-            candidate.votes += 1
-            await candidate.save()
-            res.status(200).send({ message: 'Voted successfully' })
+        if (!token) res.status(403).send({ message: 'Please login to vote' })
+        if (voted === false && verified === true) {
+            const vote = await Vote.create(req.body)
+            await User.findOneAndUpdate({ matric: decoded.matric }, { $set: { voted: true } })
+            token = jwt.sign({ matric: decoded.matric, voted: true, verified: true }, process.env.JWT_SECRET, { expiresIn: '1h' })
+            res.status(200).send({ message: 'Voted', token, vote })
         } else {
-            res.status(400).send({ message: 'OTP not verified' })
+            res.status(400).send({ message: 'You have already voted' })
         }
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
-
 }
 
+/* Exporting the functions in the file. */
 module.exports = { requestOtp, verifyOtp, getCandidates, vote }

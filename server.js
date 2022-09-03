@@ -16,7 +16,8 @@ app.use('', require('./routes/authRoutes'))
 app.use('', require('./routes/voteRoutes'))
 app.use('', require('./routes/candidateRoutes'))
 app.use('', require('./routes/voterRoutes'))
-
+app.use('', require('./routes/nomineeRoutes'))
+app.use('/admin', require('./routes/adminRoutes'))
 const PORT = process.env.PORT
 
 app.listen(PORT, () => {
